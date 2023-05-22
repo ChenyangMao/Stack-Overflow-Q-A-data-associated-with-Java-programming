@@ -1,0 +1,43 @@
+package data;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class JavaAPIExtractor {
+    public static void main(String[] args) {
+        String html = "<p><img src=\"https://i.stack.imgur.com/ugp7v.png\" alt=\"Image Example\" /></p>\n<p>I kept on getting error that there is duplicate error in classes.\n<a href=\"https://i.stack.imgur.com/92lfH.png\" rel=\"noreferrer\">This is what i have under org.jetbrains.kotlin folder</a>\n<a href=\"https://i.stack.imgur.com/Q0zHs.png\" rel=\"noreferrer\">.idea/libraries</a></p>\n<p>it seems like the problem is because there is two different dependencies for the kotlin, from stdlib and stdlibjdk8 but I don't know how to remove either one from my module/project dependencies. Please help :(</p>\n<p>Here's the full error code :</p>\n<pre><code>Duplicate class kotlin.collections.jdk8.CollectionsJDK8Kt found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.internal.jdk7.JDK7PlatformImplementations found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk7-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0)\nDuplicate class kotlin.internal.jdk8.JDK8PlatformImplementations found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.io.path.ExperimentalPathApi found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk7-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0)\nDuplicate class kotlin.io.path.PathRelativizer found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk7-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0)\nDuplicate class kotlin.io.path.PathsKt found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk7-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0)\nDuplicate class kotlin.io.path.PathsKt__PathReadWriteKt found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk7-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0)\nDuplicate class kotlin.io.path.PathsKt__PathUtilsKt found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk7-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0)\nDuplicate class kotlin.jdk7.AutoCloseableKt found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk7-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.0)\nDuplicate class kotlin.jvm.jdk8.JvmRepeatableKt found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.random.jdk8.PlatformThreadLocalRandom found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.streams.jdk8.StreamsKt found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.streams.jdk8.StreamsKt$asSequence$$inlined$Sequence$1 found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.streams.jdk8.StreamsKt$asSequence$$inlined$Sequence$2 found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.streams.jdk8.StreamsKt$asSequence$$inlined$Sequence$3 found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.streams.jdk8.StreamsKt$asSequence$$inlined$Sequence$4 found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.text.jdk8.RegexExtensionsJDK8Kt found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\nDuplicate class kotlin.time.jdk8.DurationConversionsJDK8Kt found in modules jetified-kotlin-stdlib-1.8.0 (org.jetbrains.kotlin:kotlin-stdlib:1.8.0) and jetified-kotlin-stdlib-jdk8-1.6.0 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0)\n</code></pre>\n<p>I've tried deleting the files from the org.jetbrains.kotlin but whenever i build the app in Android Studio, the files will be re-downloaded again.</p>\n<p>this is my module app gradle code</p>\n<pre><code>\nplugins {\n    id 'com.android.application'\n    id 'com.google.gms.google-services'\n}\n\nandroid {\n    compileSdk 33\n\n    defaultConfig {\n        applicationId &quot;com.example.umfs&quot;\n        minSdk 21\n        targetSdk 32\n        versionCode 1\n        versionName &quot;1.0&quot;\n\n        testInstrumentationRunner &quot;androidx.test.runner.AndroidJUnitRunner&quot;\n    }\n\n    buildTypes {\n        release {\n            minifyEnabled false\n            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'\n        }\n    }\n    compileOptions {\n        sourceCompatibility JavaVersion.VERSION_1_8\n        targetCompatibility JavaVersion.VERSION_1_8\n    }\n\n    buildFeatures {\n        viewBinding true\n    }\n\n    namespace 'com.example.umfs'\n}\n\ndependencies {\n\n\n    implementation 'androidx.appcompat:appcompat:1.5.1'\n    implementation 'com.google.android.material:material:1.7.0'\n    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'\n    implementation 'com.google.firebase:firebase-database:20.1.0'\n    implementation 'androidx.preference:preference:1.2.0'\n    implementation 'com.google.firebase:firebase-auth:21.1.0'\n    implementation 'com.google.firebase:firebase-core:21.1.1'\n    implementation 'androidx.navigation:navigation-fragment:2.5.3'\n    implementation 'androidx.navigation:navigation-ui:2.5.3'\n    implementation 'com.google.firebase:firebase-firestore:24.4.1'\n    implementation 'androidx.recyclerview:recyclerview:1.2.1'\n    testImplementation 'junit:junit:4.13.2'\n    androidTestImplementation 'androidx.test.ext:junit:1.1.4'\n    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'\n    implementation 'de.hdodenhof:circleimageview:3.1.0'\n    implementation &quot;androidx.cardview:cardview:1.0.0&quot;\n    implementation 'com.google.firebase:firebase-firestore:24.4.1'\n    implementation 'com.google.firebase:firebase-storage:20.1.0'\n    implementation 'com.google.firebase:firebase-database'\n    implementation platform('com.google.firebase:firebase-bom:28.4.0')\n    implementation 'com.squareup.picasso:picasso:2.71828'\n    implementation 'com.makeramen:roundedimageview:2.3.0'\n    implementation 'com.github.bumptech.glide:glide:4.14.2'\n    implementation 'com.github.marlonlom:timeago:4.0.3'\n    implementation &quot;androidx.core:core-ktx:+&quot;\n\n}\n\napply plugin: 'com.google.gms.google-services'\n</code></pre>\n";
+
+        // 使用Jsoup解析HTML
+        Document doc = Jsoup.parse(html);
+
+        // 获取所有的<code>标签
+        Elements codeElements = doc.select("code");
+
+        // 提取Java类和方法调用
+        String regex = "(\\w+\\.)+(\\w+)";
+        Pattern pattern = Pattern.compile(regex);
+
+        // 使用Set来存储已提取的值
+        Set<String> extractedValues = new HashSet<>();
+
+        for (Element codeElement : codeElements) {
+            String code = codeElement.text();
+
+            // 使用正则表达式匹配Java类和方法调用
+            Matcher matcher = pattern.matcher(code);
+            while (matcher.find()) {
+                String match = matcher.group();
+                if (!match.matches("\\d+\\.\\d+\\.\\d+") && extractedValues.add(match)) {
+                    System.out.println(match);
+                }
+            }
+        }
+    }
+}

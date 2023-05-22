@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number of Answers</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2/dist/echarts-wordcloud.min.js"></script>
+</head>
+<style>
+    .wordcloud-container-parent {
+        text-align: center;
+    }
+
+    .wordcloud-container {
+        display: inline-block;
+        vertical-align: top;
+    }
+</style>
+<body>
+<h1>Java Tag</h1>
+<h2 id="chart-title1" onclick="showpiechart()">What percentage of questions don't have any answer?</h2>
+<div id="pie-chart" style="height: 400px;"></div>
+<h2 id="chart-title2" onclick="showchart()">What is the average and maximum number of answers?</h2>
+<div id="max-avg-chart" style="height: 400px;"></div>
+<h2 id="chart-title3" onclick="showhistogramChart()">What is the distribution of the number of answers?</h2>
+<div id="histogram" style="height: 400px;"></div>
+<h2 id="chart-title4" onclick="showpie_chart_accepted()">What percentage of questions have accepted answers?</h2>
+<div id="pie-chart-accepted" style="height: 400px;"></div>
+<h2 id="chart-title5" onclick="showhistogramChart_accepted()">What is the distribution of question resolution time?</h2>
+<div id="histogram-accepted" style="height: 400px;"></div>
+<h2 id="chart-title6" onclick="showpie_chart_noAccepted()">What percentage of questions have non-accepted answers?</h2>
+<div id="pie-chart-noAccepted" style="height: 400px;"></div>
+<h2 id="chart-title7" onclick="showTags()">Tags</h2>
+<div class="wordcloud-container-parent">
+    <div class="wordcloud-container">
+        <div id="wordcloudTag" style="height: 400px; width: 350px;"></div>
+    </div>
+    <div class="wordcloud-container">
+        <div id="wordcloudUpvote" style="height: 400px; width: 350px;"></div>
+    </div>
+    <div class="wordcloud-container">
+        <div id="wordcloudView" style="height: 400px; width: 350px;"></div>
+    </div>
+</div>
+<h2 id="chart-title8" onclick="showUsers()">Users</h2>
+<div id="histogram-thread" style="height: 400px;"></div>
+<div id="histogram-answer" style="height: 400px;"></div>
+<div id="histogram-comment" style="height: 400px;"></div>
+<div id="ownerChart" style="height: 600px"></div>
+<h2 id="chart-title9" onclick="showAPIs()">APIs</h2>
+<div id="wordcloudAPI" style="height: 400px;"></div>
+
+<script th:inline="javascript">
+
+    // todo: What percentage of questions don't have any answer?
+    function showpiechart() {
+        let totalQuestions = [[${totalQuestions}]];
+        let unansweredQuestions = [[${unansweredQuestions}]];
+        // 计算没有答案的问题百分比
+        let unansweredPercentage = (unansweredQuestions / totalQuestions) * 100;
+        // 使用ECharts创建饼图
+        let piechart = echarts.init(document.getElementById('pie-chart'));
+        let option1_1 = {
+            title: {
+                text: 'Unanswered Questions Percentage',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}: {c} ({d}%)'
+            },
+            series: [
+                {
+                    name: 'Unanswered Questions',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: true,
+                        position: 'outside',
+                        formatter: '{b}: {c} ({d}%)'
+                    },
+                    labelLine: {
+                        show: true
+                    },
+                    data: [
+                        {value: unansweredQuestions, name: 'Unanswered'},
+                        {value: totalQuestions - unansweredQuestions, name: 'Answered'},
+
+                    ]
+                }
+            ]
+        };
+        piechart.setOption(option1_1);
+    }
+
+    // todo: What is the average and maximum number of answers?
+    // 初始化柱状图实例
+    function showchart() {
+        let chart = echarts.init(document.getElementById('max-avg-chart'));
+        let avgValue = [[${avgValue}]];
+        let maxValue = [[${maxValue}]];
+        // 设置柱状图的配置项
+        let option1_2 = {
+            title: {
+                text: 'The Number of Answer',
+                subtext: 'Average and Maximum',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: ['Average', 'Maximum']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    type: 'bar',
+                    data: [avgValue, maxValue],
+                    label: {
+                        show: true,
+                        position: 'top'
+                    }
+                }
+            ]
+        };
+        // 使用配置项显示柱状图
+        chart.setOption(option1_2);
+    }
+
+    //todo: What is the distribution of the number of answers?
+    function showhistogramChart() {
+        let answerCounts = [[${answerCounts}]];
+        // 对答案数量进行分组，定义分组区间和计数
+        let bins = [0, 1, 2, 3, 4, 5, 6, 11, 40]; // 分组区间
+        let labels = ["0", "1", "2", "3", "4", "5", "6-10", "10+"];
+        let counts = []; // 存储每个区间的问题数量
+        for (let i = 0; i < bins.length - 1; i++) {
+            let lower = bins[i];
+            let upper = bins[i + 1];
+            let count = 0;
+            for (let j = 0; j < answerCounts.length; j++) {
+                if (answerCounts[j] >= lower && answerCounts[j] < upper) {
+                    count++;
+                }
+            }
+            counts.push(count);
+        }
+        // 使用 ECharts 绘制直方图
+        let histogramChart = echarts.init(document.getElementById('histogram'));
+        let option1_3 = {
+            title: {
+                text: 'Answer Number Distribution',
+                left: 'center'
+            },
+            tooltip: {},
+            xAxis: {
+                type: 'category',
+                data: labels,
+                axisLabel: {
+                    rotate: 45
+                }
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: 'Question Count',
+                type: 'bar',
+                data: counts
+            }]
+        };
+        histogramChart.setOption(option1_3);
+    }
+
+    // todo: What percentage of questions have accepted answers (one question could only have one accepted answer)?
+    function showpie_chart_accepted() {
+        let totalQuestions = [[${totalQuestions}]];
+        let acceptedQuestions = [[${acceptedQuestions}]];
+        // 计算没有答案的问题百分比
+        let unacceptedPercentage = (acceptedQuestions / totalQuestions) * 100;
+        // 使用ECharts创建饼图
+        let pie_chart_accepted = echarts.init(document.getElementById('pie-chart-accepted'));
+        let option2_1 = {
+            title: {
+                text: 'Accepted Questions Percentage',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}: {c} ({d}%)'
+            },
+            series: [
+                {
+                    name: 'Accepted Questions',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: true,
+                        position: 'outside',
+                        formatter: '{b}: {c} ({d}%)'
+                    },
+                    labelLine: {
+                        show: true
+                    },
+                    data: [
+                        {value: acceptedQuestions, name: 'accepted'},
+                        {value: totalQuestions - acceptedQuestions, name: 'Unaccepted'}
+                    ]
+                }
+            ]
+        };
+        pie_chart_accepted.setOption(option2_1);
+    }
+
+    //todo:  What is the distribution of question resolution time (i.e., the duration between the question posting time and the posting time of the accepted answer)?
+    function showhistogramChart_accepted() {
+        let acceptTime = [[${acceptTime}]];
+        // 对答案数量进行分组，定义分组区间和计数
+        let bins_a = [0, 600, 3600, 21600, 43200, 86400, 259200, 604800, 1209600, 2592000, 25920000];
+        // 分组区间
+        let labels_a = ["10min", "1h", "6h", "12h", "24h", "3days", "1week", "2weeks", "1month", "1month+"];
+        let counts_a = []; // 存储每个区间的问题数量
+        for (let i = 0; i < bins_a.length - 1; i++) {
+            let lower = bins_a[i];
+            let upper = bins_a[i + 1];
+            let count = 0;
+            for (let j = 0; j < acceptTime.length; j++) {
+                if (acceptTime[j] >= lower && acceptTime[j] < upper) {
+                    count++;
+                }
+            }
+            counts_a.push(count);
+        }
+        // 使用 ECharts 绘制直方图
+        let histogramChart_accepted = echarts.init(document.getElementById('histogram-accepted'));
+        let option2_2 = {
+            title: {
+                text: 'Accepted Time Distribution',
+                left: 'center'
+            },
+            tooltip: {},
+            xAxis: {
+                type: 'category',
+                data: labels_a,
+                axisLabel: {
+                    rotate: 45
+                }
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: 'Question Count',
+                type: 'bar',
+                data: counts_a
+            }]
+        };
+        histogramChart_accepted.setOption(option2_2);
+    }
+
+    //todo: What percentage of questions have non-accepted answers (i.e., answers that are not marked as accepted) that have received more upvotes than the accepted answers?
+    function showpie_chart_noAccepted() {
+        let acceptedQuestions = [[${acceptedQuestions}]];
+        let noAcceptedAnswer = [[${noAcceptedAnswer}]];
+        // 计算没有答案的问题百分比
+        let nonacceptedPercentage = (noAcceptedAnswer / acceptedQuestions) * 100;
+        // 使用ECharts创建饼图
+        let pie_chart_noAccepted = echarts.init(document.getElementById('pie-chart-noAccepted'));
+        let option2_3 = {
+            title: {
+                text: 'Non-accepted Answers Percentage',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}: {c} ({d}%)'
+            },
+            series: [
+                {
+                    name: 'Non-accepted Answers',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: true,
+                        position: 'outside',
+                        formatter: '{b}: {c} ({d}%)'
+                    },
+                    labelLine: {
+                        show: true
+                    },
+                    data: [
+                        {value: noAcceptedAnswer, name: 'non-accepted'},
+                        {value: acceptedQuestions - noAcceptedAnswer, name: 'accepted'}
+                    ]
+                }
+            ]
+        };
+        pie_chart_noAccepted.setOption(option2_3);
+    }
+
+    function showTags() {
+        //todo: Which tags frequently appear together with the java tag?
+        let wordcloud1 = echarts.init(document.getElementById('wordcloudTag'));
+        let wordcloudTag = [[${wordcloudTag}]]
+        let wordcloudData1 = [];
+        for (let i = 0; i < wordcloudTag.length; i++) {
+            wordcloudData1.push({
+                name: wordcloudTag[i][0],
+                value: wordcloudTag[i][1]
+            });
+        }
+        let wordcloudOption1 = {
+            title: {
+                text: 'Related Tag WordCloud',
+                textStyle: {
+                    fontStyle: 'oblique',
+                    fontSize: 20,
+                    color: '#4cc9f0'
+                },
+                left: 'center'
+            },
+            tooltip: {},
+            series: [{
+                type: 'wordCloud',
+                shape: {
+                    cloudGrow: 0.2
+                },
+                sizeRange: [10, 60],
+                rotationRange: [-30, 30],
+                gridSize: 2,
+                drawOutOfBound: false,
+                layoutAnimation: true,
+                keepAspect: true,
+                textStyle: {
+                    fontWeight: 'bold',
+                    color: function () {
+                        return 'rgb(' + [
+                            Math.round(Math.random() * 160),
+                            Math.round(Math.random() * 160),
+                            Math.round(Math.random() * 160)
+                        ].join(',') + ')';
+                    }
+                },
+                emphasis: {
+                    textStyle: {
+                        shadowBlur: 15,
+                        shadowColor: '#333'
+                    }
+                },
+                data: wordcloudData1.sort(function (a, b) {
+                    return b.value - a.value;
+                })
+            }]
+        };
+        wordcloud1.setOption(wordcloudOption1);
+
+        //todo:Which tags or tag combinations receive the most upvotes?
+        let wordcloud2 = echarts.init(document.getElementById('wordcloudUpvote'));
+        let wordcloudUpvote = [[${wordcloudUpvote}]]
+        let wordcloudData2 = [];
+        for (let i = 0; i < wordcloudUpvote.length; i++) {
+            wordcloudData2.push({
+                name: wordcloudUpvote[i][0],
+                value: wordcloudUpvote[i][1]
+            });
+        }
+        let wordcloudOption2 = {
+            title: {
+                text: 'Most Upvote Tag WordCloud',
+                textStyle: {
+                    fontStyle: 'oblique',
+                    fontSize: 20,
+                    color: '#4cc9f0'
+                },
+                left: 'center'
+            },
+            tooltip: {},
+            series: [{
+                type: 'wordCloud',
+                shape: {
+                    cloudGrow: 0.2
+                },
+                sizeRange: [10, 60],
+                rotationRange: [-30, 30],
+                gridSize: 2,
+                drawOutOfBound: false,
+                layoutAnimation: true,
+                keepAspect: true,
+                textStyle: {
+                    fontWeight: 'bold',
+                    color: function () {
+                        return 'rgb(' + [
+                            Math.round(Math.random() * 160),
+                            Math.round(Math.random() * 160),
+                            Math.round(Math.random() * 160)
+                        ].join(',') + ')';
+                    }
+                },
+                emphasis: {
+                    textStyle: {
+                        shadowBlur: 15,
+                        shadowColor: '#333'
+                    }
+                },
+                data: wordcloudData2.sort(function (a, b) {
+                    return b.value - a.value;
+                })
+            }]
+        };
+        wordcloud2.setOption(wordcloudOption2);
+        //todo:Which tags or tag combinations receive the most views?
+        let wordcloud3 = echarts.init(document.getElementById('wordcloudView'));
+        let wordcloudView = [[${wordcloudView}]]
+        let wordcloudData3 = [];
+        for (let i = 0; i < wordcloudView.length; i++) {
+            wordcloudData3.push({
+                name: wordcloudView[i][0],
+                value: wordcloudView[i][1]
+            });
+        }
+        let wordcloudOption3 = {
+            title: {
+                text: 'Most View Tag WordCloud',
+                textStyle: {
+                    fontStyle: 'oblique',
+                    fontSize: 20,
+                    color: '#4cc9f0'
+                },
+                left: 'center'
+            },
+            tooltip: {},
+            series: [{
+                type: 'wordCloud',
+                shape: {
+                    cloudGrow: 0.2
+                },
+                sizeRange: [10, 60],
+                rotationRange: [-30, 30],
+                gridSize: 2,
+                drawOutOfBound: false,
+                layoutAnimation: true,
+                keepAspect: true,
+                textStyle: {
+                    fontWeight: 'bold',
+                    color: function () {
+                        return 'rgb(' + [
+                            Math.round(Math.random() * 160),
+                            Math.round(Math.random() * 160),
+                            Math.round(Math.random() * 160)
+                        ].join(',') + ')';
+                    }
+                },
+                emphasis: {
+                    textStyle: {
+                        shadowBlur: 15,
+                        shadowColor: '#333'
+                    }
+                },
+                data: wordcloudData3.sort(function (a, b) {
+                    return b.value - a.value;
+                })
+            }]
+        };
+        wordcloud3.setOption(wordcloudOption3);
+    }
+
+    function showUsers() {
+        //todo:Many users could participate in a thread discussion.
+        let ownerThread = [[${ownerThread}]];
+        // 对答案数量进行分组，定义分组区间和计数
+        let bins_ot = [1, 2, 3, 4, 5, 6, 10, 50];
+        // 分组区间
+        let labels_ot = ["1", "2", "3", "4", "5", "6-9", "10+"];
+        let counts_ot = []; // 存储每个区间的问题数量
+        for (let i = 0; i < bins_ot.length - 1; i++) {
+            let lower = bins_ot[i];
+            let upper = bins_ot[i + 1];
+            let count = 0;
+            for (let j = 0; j < ownerThread.length; j++) {
+                if (ownerThread[j] >= lower && ownerThread[j] < upper) {
+                    count++;
+                }
+            }
+            counts_ot.push(count);
+        }
+        // 使用 ECharts 绘制直方图
+        let histogramChart_thread = echarts.init(document.getElementById('histogram-thread'));
+        let option4_1 = {
+            title: {
+                text: 'User participation by Thread',
+                left: 'center'
+            },
+            tooltip: {},
+            xAxis: {
+                type: 'category',
+                data: labels_ot,
+                axisLabel: {
+                    rotate: 45
+                }
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: 'User participation by Thread',
+                type: 'bar',
+                data: counts_ot
+            }]
+        };
+        histogramChart_thread.setOption(option4_1);
+
+        //todo: answers
+        let ownerAns = [[${ownerAns}]];
+        // 对答案数量进行分组，定义分组区间和计数
+        let bins_oa = [1, 2, 3, 4, 5, 6, 10, 50];
+        // 分组区间
+        let labels_oa = ["1", "2", "3", "4", "5", "6-9", "10+"];
+        let counts_oa = []; // 存储每个区间的问题数量
+        for (let i = 0; i < bins_oa.length - 1; i++) {
+            let lower = bins_oa[i];
+            let upper = bins_oa[i + 1];
+            let count = 0;
+            for (let j = 0; j < ownerAns.length; j++) {
+                if (ownerAns[j] >= lower && ownerAns[j] < upper) {
+                    count++;
+                }
+            }
+            counts_oa.push(count);
+        }
+        // 使用 ECharts 绘制直方图
+        let histogramChart_answer = echarts.init(document.getElementById('histogram-answer'));
+        let option4_2 = {
+            title: {
+                text: 'User participation by Answer',
+                left: 'center'
+            },
+            tooltip: {},
+            xAxis: {
+                type: 'category',
+                data: labels_oa,
+                axisLabel: {
+                    rotate: 45
+                }
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: 'User participation by Answer',
+                type: 'bar',
+                data: counts_oa
+            }]
+        };
+        histogramChart_answer.setOption(option4_2);
+
+        //todo: comments
+        let ownerComm = [[${ownerComm}]];
+        // 对答案数量进行分组，定义分组区间和计数
+        let bins_oc = [1, 2, 3, 4, 5, 6, 10, 50];
+        // 分组区间
+        let labels_oc = ["1", "2", "3", "4", "5", "6-9", "10+"];
+        let counts_oc = []; // 存储每个区间的问题数量
+        for (let i = 0; i < bins_oc.length - 1; i++) {
+            let lower = bins_oc[i];
+            let upper = bins_oc[i + 1];
+            let count = 0;
+            for (let j = 0; j < ownerComm.length; j++) {
+                if (ownerComm[j] >= lower && ownerComm[j] < upper) {
+                    count++;
+                }
+            }
+            counts_oc.push(count);
+        }
+        // 使用 ECharts 绘制直方图
+        let histogramChart_comment = echarts.init(document.getElementById('histogram-comment'));
+        let option4_3 = {
+            title: {
+                text: 'User participation by Comment',
+                left: 'center'
+            },
+            tooltip: {},
+            xAxis: {
+                type: 'category',
+                data: labels_oc,
+                axisLabel: {
+                    rotate: 45
+                }
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: 'User participation by Comment',
+                type: 'bar',
+                data: counts_oc
+            }]
+        };
+        histogramChart_comment.setOption(option4_3);
+
+        //todo: Which are the most active users who frequently participate in thread discussions?
+        let ownerChart = echarts.init(document.getElementById('ownerChart'));
+        let sortOwner = [[${sortOwner}]];
+        let option4_4 = {
+            title: {
+                text: 'Most Active Users Top30',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            xAxis: {
+                type: 'value',
+                position: 'top',
+            },
+            yAxis: {
+                type: 'category',
+                data: sortOwner.map(item => item[0]),
+            },
+            series: [
+                {
+                    type: 'bar',
+                    data: sortOwner.map(item => ({
+                        value: item[2],
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: item[1], // 显示item[1]的字符串
+                        },
+                    })),
+                }
+            ]
+        };
+        ownerChart.setOption(option4_4);
+    }
+
+    //todo:Which Java APIs (e.g., classes, methods) are frequently discussed on Stack Overflow? To answer this question, you may need to extract code snippets from thread content (including posts, answers, and comments) and further identify class names or method names.
+    function showAPIs() {
+        let wordcloud4 = echarts.init(document.getElementById('wordcloudAPI'));
+        let wordcloudAPI = [[${getAPI}]]
+        let wordcloudData4 = [];
+        for (let i = 0; i < wordcloudAPI.length; i++) {
+            wordcloudData4.push({
+                name: wordcloudAPI[i][0],
+                value: wordcloudAPI[i][1]
+            });
+        }
+        let wordcloudOption4 = {
+            title: {
+                text: 'API WordCloud',
+                textStyle: {
+                    fontStyle: 'oblique',
+                    fontSize: 20,
+                    color: '#4cc9f0'
+                },
+                left: 'center'
+            },
+            tooltip: {},
+            series: [{
+                type: 'wordCloud',
+                shape: {
+                    cloudGrow: 0.2
+                },
+                sizeRange: [10, 60],
+                rotationRange: [-30, 30],
+                gridSize: 2,
+                drawOutOfBound: false,
+                layoutAnimation: true,
+                keepAspect: true,
+                textStyle: {
+                    fontWeight: 'bold',
+                    color: function () {
+                        return 'rgb(' + [
+                            Math.round(Math.random() * 160),
+                            Math.round(Math.random() * 160),
+                            Math.round(Math.random() * 160)
+                        ].join(',') + ')';
+                    }
+                },
+                emphasis: {
+                    textStyle: {
+                        shadowBlur: 15,
+                        shadowColor: '#333'
+                    }
+                },
+                data: wordcloudData4.sort(function (a, b) {
+                    return b.value - a.value;
+                })
+            }]
+        };
+        wordcloud4.setOption(wordcloudOption4);
+
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Question Information</h1>
+
+    <div th:each="question :${question}">
+        <p>ID: <span th:text="${id}"></span></p>
+        <p>Creation Date: <span th:text="${date}"></span></p>
+        <p>Answer Count: <span th:text="${ans}"></span></p>
+        <p>View Count: <span th:text="${view}"></span></p>
+        <p>Upvote Count: <span th:text="${upvote}"></span></p>
+    </div>
+
+</body>
+</html>

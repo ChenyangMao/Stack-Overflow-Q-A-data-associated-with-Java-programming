@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Accepted Information</title>
+</head>
+<body>
+<h1>
+    <span>isAccepted: </span>
+    <span th:text="${pageTitle}"></span>
+</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Answer ID</th>
+        <th>Question ID</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="tag : ${status}">
+        <td th:text="${tag[0]}"></td>
+        <td th:text="${tag[1]}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

@@ -8,8 +8,9 @@ import java.util.List;
 
 @Entity
 public class API {
-    @Id
-    private String api_name;
+
+  @Id
+  private String api_name;
 //    @ManyToMany
 //    private List<Question> questions;
 //    @ManyToMany
@@ -17,9 +18,10 @@ public class API {
 //    @ManyToMany
 //    private List<Comment> comments;
 
-    public API(){}
+  public API() {
+  }
 
-    public API(String api_name){
-        this.api_name = api_name;
-    }
+  public API(String api_name) {
+    this.api_name = api_name;
+  }
 }

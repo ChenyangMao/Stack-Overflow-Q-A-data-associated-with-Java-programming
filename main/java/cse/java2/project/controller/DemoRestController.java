@@ -15,48 +15,49 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class DemoRestController {
-    private QuestionService questionService;
 
-    public DemoRestController(QuestionService questionService) {
-        this.questionService = questionService;
+  private QuestionService questionService;
+
+  public DemoRestController(QuestionService questionService) {
+    this.questionService = questionService;
+  }
+
+
+  @GetMapping("/question/{id}")
+  public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
+    Question question = questionService.getQuestionByQuestionId(id);
+    if (question == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(question);
+  }
+
+  @GetMapping("/tags/{content}")
+  public ResponseEntity<List<Object[]>> getTagsInfo(@PathVariable String content) {
+    List<Object[]> tagsInfo = new ArrayList<>();
+
+    if (content.equals("related")) {
+      tagsInfo = questionService.getTags();
+    } else if (content.equals("upvote")) {
+      tagsInfo = questionService.getTagsUpvote();
+    } else if (content.equals("view")) {
+      tagsInfo = questionService.getTagsView();
     }
 
-
-    @GetMapping("/question/{id}")
-    public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
-        Question question = questionService.getQuestionByQuestionId(id);
-        if (question == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(question);
+    if (tagsInfo.isEmpty()) {
+      return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/tags/{content}")
-    public ResponseEntity<List<Object[]>> getTagsInfo(@PathVariable String content) {
-        List<Object[]> tagsInfo = new ArrayList<>();
+    return ResponseEntity.ok(tagsInfo);
+  }
 
-        if (content.equals("related")) {
-            tagsInfo = questionService.getTags();
-        } else if (content.equals("upvote")) {
-            tagsInfo = questionService.getTagsUpvote();
-        } else if (content.equals("view")) {
-            tagsInfo = questionService.getTagsView();
-        }
 
-        if (tagsInfo.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(tagsInfo);
+  @GetMapping("/answers/{isAccepted}")
+  public ResponseEntity<List<Object[]>> getAnswer(@PathVariable boolean isAccepted) {
+    List<Object[]> answers = questionService.getAccepted(isAccepted);
+    if (answers == null) {
+      return ResponseEntity.notFound().build();
     }
-
-
-    @GetMapping("/answers/{isAccepted}")
-    public ResponseEntity<List<Object[]>> getAnswer(@PathVariable boolean isAccepted) {
-        List<Object[]> answers = questionService.getAccepted(isAccepted);
-        if (answers == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(answers);
-    }
+    return ResponseEntity.ok(answers);
+  }
 }

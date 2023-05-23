@@ -1,5 +1,6 @@
 package cse.java2.project.repository;
 
+import cse.java2.project.model.Answer;
 import cse.java2.project.model.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +13,7 @@ import java.util.Optional;
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     Question findById(long id);
 
-    @Query(value="select answer_id,qa.question_id from answer join question_answers qa on answer.answer_id = qa.answers_answer_id where is_accepted = ?",nativeQuery = true)
+    @Query(value="select answer.answer_id,owner_display_name from answer join question_answers qa on answer.answer_id = qa.answers_answer_id where is_accepted = ?",nativeQuery = true)
     List<Object[]> getAccepted(boolean accepted);
     @Query("SELECT count(*) FROM Question")
     Integer Cnt();

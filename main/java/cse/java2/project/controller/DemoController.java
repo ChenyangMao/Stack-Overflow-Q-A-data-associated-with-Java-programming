@@ -41,34 +41,4 @@ public class DemoController {
     return "chart"; // 返回HTML文件名，省略文件扩展名
   }
 
-  @RequestMapping("getQuestionById")
-  public String getQuestionById(Long id, Model model) {
-    Question question = questionService.getQuestionByQuestionId(id);
-    model.addAttribute("question", question);
-    model.addAttribute("id", question.getId());
-    model.addAttribute("date", question.getCreationDate());
-    model.addAttribute("ans", question.getAnswer_count());
-    model.addAttribute("view", question.getView_count());
-    model.addAttribute("upvote", question.getUp_vote_count());
-    return "question";
-  }
-
-  @RequestMapping({"getTagsInfo"})
-  public String getTagsInfo(String content, Model model) {
-    if (content.equals("related")) {
-      model.addAttribute("content", questionService.getTags());
-    } else if (content.equals("upvote")) {
-      model.addAttribute("content", questionService.getTagsUpvote());
-    } else if (content.equals("view")) {
-      model.addAttribute("content", questionService.getTagsView());
-    }
-    return "tag";
-  }
-
-  @RequestMapping({"answer"})
-  public String getAnswer(boolean isAccepted, Model model) {
-    model.addAttribute("pageTitle", isAccepted);
-    model.addAttribute("status", questionService.getAccepted(isAccepted));
-    return "answer";
-  }
 }
